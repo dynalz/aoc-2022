@@ -39,8 +39,8 @@ columns = len(map_rock)
 
 
 def check_if_position_is_free(position: tuple[int, int]) -> bool:
-    if position[1] > rows:
-        raise Exception("FINISH")  # sand dropping into the abyss
+    if position[1] > rows + 2:
+        return False  # hit the floor
     return position[1] not in map_rock[position[0]] and position[1] not in map_sand[position[0]]
 
 
@@ -65,10 +65,13 @@ def drop_sand(current_sand_position: tuple[int, int]):
 
 
 def draw_map(till_row=None, highlight_position: tuple[int, int] = None):
-    for row in range(rows + 1):
+    rock_floor = rows + 2
+    for row in range(rock_floor + 1):
         line_draw = ""
-        for key in range(first_column_key, first_column_key + columns):
-            if highlight_position and highlight_position == (key, row):
+        for key in range(first_column_key - 95, first_column_key + columns + 95):
+            if row == rock_floor:
+                line_draw += "#"
+            elif highlight_position and highlight_position == (key, row):
                 line_draw += "\033[91mX\033[0m"
             elif row == 0 and key == 500:
                 line_draw += "+"
@@ -84,12 +87,11 @@ def draw_map(till_row=None, highlight_position: tuple[int, int] = None):
 
 
 sand_dropped = 0
-try:
-    while True:
-        drop_sand((500, 0))
-        sand_dropped += 1
-except:
-    pass
+while True:
+    position = drop_sand((500, 0))
+    sand_dropped += 1
+    if position == (500, 0):
+        draw_map(highlight_position=position)
+        break
 
-draw_map()
 print(sand_dropped)
